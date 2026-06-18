@@ -1,4 +1,4 @@
-import { createContext, useReducer, useMemo } from "react";
+import { createContext, useReducer } from "react";
 import type { ReactNode } from "react";
 
 export type CartItemType = {
@@ -16,15 +16,15 @@ const initCartState: CartStateType = {
   cart: [],
 };
 
-const REDUCER_ACTION_TYPE = {
-  ADD: "ADD",
-  REMOVE: "REMOVE",
-  UPDATE_QUANTITY: "UPDATE_QUANTITY",
-  SUBMIT: "SUBMIT",
-} as const;
+// const REDUCER_ACTION_TYPE = {
+//   ADD: "ADD",
+//   REMOVE: "REMOVE",
+//   UPDATE_QUANTITY: "UPDATE_QUANTITY",
+//   SUBMIT: "SUBMIT",
+// } as const;
 
-export type ReducerActionType =
-  (typeof REDUCER_ACTION_TYPE)[keyof typeof REDUCER_ACTION_TYPE];
+export type ReducerActionType = "ADD" | "REMOVE" | "UPDATE_QUANTITY" | "SUBMIT";
+// (typeof REDUCER_ACTION_TYPE)[keyof typeof REDUCER_ACTION_TYPE];
 
 export type ReducerAction = {
   type: ReducerActionType;
@@ -36,7 +36,7 @@ const reducer = (
   action: ReducerAction,
 ): CartStateType => {
   switch (action.type) {
-    case REDUCER_ACTION_TYPE.ADD:
+    case "ADD":
       if (!action.payload) {
         throw new Error("Payload is required for ADD action");
       } else {
@@ -57,7 +57,7 @@ const reducer = (
       }
 
     // return { ...state, cart: [...state.cart, action.payload] };
-    case REDUCER_ACTION_TYPE.REMOVE:
+    case "REMOVE":
       if (!action.payload) {
         throw new Error("Payload is required for REMOVE action");
       }
@@ -65,7 +65,7 @@ const reducer = (
         ...state,
         cart: state.cart.filter((item) => item.sku !== action?.payload?.sku),
       };
-    case REDUCER_ACTION_TYPE.UPDATE_QUANTITY:
+    case "UPDATE_QUANTITY":
       if (!action.payload) {
         throw new Error("Payload is required for UPDATE_QUANTITY action");
       } else {
@@ -87,7 +87,7 @@ const reducer = (
         return { ...state, cart: [...existingCartItems, updatedItem] };
       }
 
-    case REDUCER_ACTION_TYPE.SUBMIT:
+    case "SUBMIT":
       return { ...state, cart: [] };
     default:
       throw new Error("Unidentified reducer action type");
@@ -97,7 +97,15 @@ const reducer = (
 const useCartContext = (initCartState: CartStateType) => {
   const [state, dispatch] = useReducer(reducer, initCartState);
 
-  const REDUCER_ACTIONS = useMemo(() => REDUCER_ACTION_TYPE, []);
+  // const REDUCER_ACTIONS = useMemo(
+  //   () => ({
+  //     ADD: "ADD",
+  //     REMOVE: "REMOVE",
+  //     UPDATE_QUANTITY: "UPDATE_QUANTITY",
+  //     SUBMIT: "SUBMIT",
+  //   }),
+  //   [],
+  // );
 
   const totalItems: number = state.cart.reduce((previousValue, currentItem) => {
     return previousValue + currentItem.quantity;
@@ -118,14 +126,13 @@ const useCartContext = (initCartState: CartStateType) => {
     return itemA - itemB;
   });
 
-  return { dispatch, REDUCER_ACTIONS, totalItems, totalPrice, sortedCart };
+  return { dispatch, totalItems, totalPrice, sortedCart };
 };
 
 export type CartContextType = ReturnType<typeof useCartContext>;
 
 const initCartContextState: CartContextType = {
   dispatch: () => {},
-  REDUCER_ACTIONS: REDUCER_ACTION_TYPE,
   totalItems: 0,
   totalPrice: "",
   sortedCart: [],
