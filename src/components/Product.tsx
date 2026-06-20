@@ -36,4 +36,19 @@ const Product = ({ product, inCart, dispatch }: ProductProps): ReactNode => {
   return content;
 };
 
-export default Product;
+function areProductsEqual(
+  { product: prevProduct, inCart: prevInCart }: ProductProps,
+  { product: currentProduct, inCart: currentInCart }: ProductProps,
+): boolean {
+  return (
+    Object.keys(prevProduct).every(
+      (key) =>
+        prevProduct[key as keyof ProductType] ===
+        currentProduct[key as keyof ProductType],
+    ) && prevInCart === currentInCart
+  );
+}
+
+const MemoizedProduct = React.memo<typeof Product>(Product, areProductsEqual);
+
+export default MemoizedProduct;

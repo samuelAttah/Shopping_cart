@@ -81,4 +81,22 @@ const CartLineItem = ({ item, dispatch }: CartLineItemProps) => {
   return content;
 };
 
-export default CartLineItem;
+function areItemsEqual(
+  { item: prevItem }: CartLineItemProps,
+  { item: currentItem }: CartLineItemProps,
+): boolean {
+  // return (
+  //   prevItem.sku === currentItem.sku &&
+  //   prevItem.price === currentItem.price &&
+  //   prevItem.quantity === currentItem.quantity
+  // );
+  return Object.keys(prevItem).every(
+    (key) =>
+      prevItem[key as keyof CartItemType] ===
+      currentItem[key as keyof CartItemType],
+  );
+}
+
+const MemoizedCartLineItem = React.memo(CartLineItem, areItemsEqual);
+
+export default MemoizedCartLineItem;
